@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package mth.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -6,8 +6,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-     @GetMapping("/")
+    @GetMapping("/")
     public String home() {
         return "Application is running!";
+    }
+
+    @GetMapping("/health")
+    public String health() {
+        return "OK";
     }
 }
