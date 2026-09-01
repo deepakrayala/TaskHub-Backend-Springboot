@@ -3,7 +3,8 @@ package mth.services;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +19,6 @@ import mth.repository.UsersRepository;
 
 @Service
 public class UsersService {
-
 	@Autowired
 	UsersRepository UR;
 	
@@ -27,7 +27,7 @@ public class UsersService {
 	
 	@Autowired
 	RolesRepository RR;
-	
+	private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	//Singup Operation
 	public Object signup(Users U)
 	{
@@ -37,7 +37,8 @@ public class UsersService {
 			U.setRole(1); //1 -> User, 2 -> Manager, 3 -> Admin
 			U.setStatus(1); //1 -> Active, 0 -> In-Active Users
 			
-			UR.save(U); //Insert into database
+			U.setPassword(passwordEncoder.encode(U.getPassword()));
+            UR.save(U); //Insert into database
 			
 			response.put("code", 200);
 			response.put("message", "User account has been created");
