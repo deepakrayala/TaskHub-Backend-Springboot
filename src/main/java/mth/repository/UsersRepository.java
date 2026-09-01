@@ -1,32 +1,26 @@
-package mth.repository;
+public Object signin(Map<String, Object> data)
+{
+    Map<String, Object> response = new HashMap<>();
 
-import java.util.List;
+    try
+    {
+        String email = data.get("username").toString();
+        String password = data.get("password").toString();
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+        Users U = UR.findByEmail(email);
 
-import mth.models.Users;
+        if(U == null || !passwordEncoder.matches(password, U.getPassword()))
+            throw new Exception("Invalid Credentials!");
 
-@Repository
-public interface UsersRepository extends JpaRepository<Users, Long> {
+        response.put("code", 200);
+        response.put("message", "Validation Success");
+        response.put("jwt", JWT.generateToken(U.getEmail(), U.getRole(), U.getId()));
+    }
+    catch(Exception e)
+    {
+        response.put("code", 500);
+        response.put("message", e.getMessage());
+    }
 
-	@Query("select U from Users U where U.email=:email and U.password=:password")
-	public Object validateCredentials(@Param("email") String email, @Param("password") String password);
-	
-	@Query("select M from Menus M join Rolesmapping R on M.mid=R.mid where R.role=:role order by M.mid")
-	public List<Object> getMenuList(@Param("role") Long role);
-	
-	@Query("select U.fullname from Users U where U.email=:email")
-	public Object getFullName(@Param("email") String email);
-	
-	@Query("select U,R from Users U left join Roles R on U.role=R.role where email=:email")
-	public Object getProfile(@Param("email") String email);
-	
-	@Query("select U.id from Users U where U.email=:email")
-	public Object checkEmail(@Param("email") String email);
-	
-	@Query("select U from Users U where lower(U.fullname) like concat('%', lower(:key) ,'%')")
-	public List<Object> searchUser(@Param("key") String key);
+    return response;
 }
